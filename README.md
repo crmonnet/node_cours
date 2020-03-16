@@ -21,12 +21,12 @@ Bonjour Cyril!
 
 ##Mais où sommes-nous ?
 ```
-$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"ville\"}" http://localhost:3000/chat
+$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"ville\"}" https://myapphelloworldcrm.herokuapp.com/chat
 Nous sommes à Paris
 ```
 
 ##Quel temps fait-il ?
 ```
-$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"météo\"}" http://localhost:3000/chat
+$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"météo\"}" https://myapphelloworldcrm.herokuapp.com/chat
 Il fait beau
 ```
