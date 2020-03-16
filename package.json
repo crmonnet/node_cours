@@ -1,0 +1,24 @@
+{
+  "name": "node_cours",
+  "version": "1.0.0",
+  "description": "Ceci permet de faire un récupérer Hello World !",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crmonnet/node_cours.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crmonnet/node_cours/issues"
+  },
+  "homepage": "https://github.com/crmonnet/node_cours#readme"
+}
