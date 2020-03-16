@@ -18,3 +18,15 @@ Hello World!
 $ curl http://localhost:3000/hello?nom=Cyril
 Bonjour Cyril!
 ```
+
+##Mais où sommes-nous ?
+```
+$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"ville\"}" http://localhost:3000/chat
+Nous sommes à Paris
+```
+
+##Quel temps fait-il ?
+```
+$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"météo\"}" http://localhost:3000/chat
+Il fait beau
+```
