@@ -1,10 +1,11 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
+var fs = require('fs');
 
 var port = process.env.PORT || 3000;
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 app.get('/', function (req, res) {
 	res.send('Hello World!\n');
@@ -28,8 +29,29 @@ app.post('/chat', function(req, res) {
 		res.send("Nous sommes à Paris\n");
 	}else if(msg == "météo") {
 		res.send("Il fait beau\n");
+	}else if (msg.includes("=")) {
+		var tab = msg.split('=');
+		var myWord = tab[0];
+		myWord = myWord.split(" ").join("");
+		var value = tab[1];
+		value = value.split(" ").join("");
+
+		var obj = {}
+		obj[myWord] = value;
+
+		var json = JSON.stringify(obj);
+
+		fs.writeFileSync("réponses.json", json, 'utf8');
+		res.send("Merci pour cette information !");
 	}else{
-		res.send("Merci de faire un requete correcte !");
+		var rawData = fs.readFileSync("réponses.json");
+		var data = JSON.parse(rawData);
+		if (data[msg] != null) {
+			res.send(msg + ": " + data[msg]);
+		}
+		else {
+			res.send("Je ne connais pas " + msg + "...")
+		}
 	}
 });
 

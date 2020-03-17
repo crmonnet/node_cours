@@ -30,3 +30,11 @@ Nous sommes à Paris
 $ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"météo\"}" https://myapphelloworldcrm.herokuapp.com/chat
 Il fait beau
 ```
+
+## Ajoute des infos !
+```
+$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"demain = Mercredi\"}" https://myapphelloworldcrm.herokuapp.com/chat
+Merci pour cette information!
+$ curl -X POST --header "Content-Type: application/json" --data "{\"msg\":\"demain\"}" https://myapphelloworldcrm.herokuapp.com/chat
+demain: Mercredi
+```
