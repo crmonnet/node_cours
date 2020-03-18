@@ -1,15 +1,31 @@
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
+const MongoClient = require('mongodb').MongoClient
+const assert = require('assert')
 
-const url = 'mongodb://localhost:27017';
-const dbName = 'myproject';
+async function mongo() {
+    // URL de connexion
+    const url = 'mongodb://localhost:27017'
 
-const client = new MongoClient(url);
+    // Nom de la base de donnée
+    const bdd_name = 'cours_nodejs'
+    const client = new MongoClient(url)
 
-client.connect(async err => {
-  const collection = client.db("test").collection("dates");
-  // affiche la liste des documents de la collection dates dans la sortie standard
-  const dates = await collection.find({}).toArray();
-  console.log('dates:', dates)
-  client.close();
-});
+    try {
+        // Connexion au serveur
+        await client.connect()
+        const db = client.db(bdd_name)
+
+        const collection = db.collection('dates')
+
+        let r = await db.collection('dates').insertOne({date: new Date()})
+        assert.equal(1, r.insertedCount)
+
+        const docs = await collection.find({}).toArray()
+        console.log(docs)
+    }
+    catch (err) {
+        console.log(err.stack)
+    }
+    client.close()
+}
+
+mongo()
