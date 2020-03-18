@@ -2,10 +2,18 @@ const fs = require('fs')
 const util = require('util')
 const express = require('express')
 const app = express()
+const MongoClient = require('mongodb').MongoClient
+const assert = require('assert')
 
 app.use(express.json()) // for parsing application/json
 
 const PORT = process.env.PORT || 3000;
+// URL de connexion
+const url = 'mongodb://localhost:27017'
+
+// Nom de la base de donnée
+const bdd_name = 'cours_nodejs'
+const client = new MongoClient(url)
 
 app.get('/', function (req, res) {
   res.send('Hello World!')
@@ -20,6 +28,24 @@ app.get('/hello', function (req, res) {
   }
 })
 
+app.get('/messages/all', async function (req, res) {
+    try {
+        await client.connect()
+        const db = client.db(bdd_name)
+
+        const collection = db.collection('messages')
+
+        const docs = await collection.find({}).toArray()
+        console.log(docs)
+        res.send(docs)
+    }
+    catch (err) {
+        console.log(err.stack)
+        res.send(docs)
+    }
+    client.close()
+})
+
 app.post('/chat', async function (req, res) {
   if (req.body.msg === 'ville') {
     res.send('Nous sommes à Paris')
@@ -30,22 +56,23 @@ app.post('/chat', async function (req, res) {
       const [ cle, valeur ] = req.body.msg.split(' = ')
       let valeursExistantes
       try {
-        valeursExistantes = await readValuesFromFile();
-      } catch (err) {
-        res.send('error while reading réponses.json', err)
-        return
+          await client.connect()
+          const db = client.db(bdd_name)
+
+          const collection = db.collection('messages')
+
+          let r = await db.collection('messages').insertOne({from: cle, msg: valeur})
+          assert.equal(1, r.insertedCount)
+
+          const docs = await collection.find({}).toArray()
+          console.log(docs)
+          res.send(docs)
       }
-      const data = JSON.stringify({
-        ...valeursExistantes,
-        [cle]: valeur
-      })
-      try {
-        await writeFile('réponses.json', data)
-        res.send('Merci pour cette information !')
-      } catch (err) {
-        console.error('error while saving réponses.json', err)
-        res.send('Il y a eu une erreur lors de l\'enregistrement')
+      catch (err) {
+          console.log(err.stack)
+          res.send(docs)
       }
+      client.close()
     } else {
       const cle = req.body.msg
       try {
