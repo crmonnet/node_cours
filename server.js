@@ -1,61 +1,69 @@
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
-var fs = require('fs');
+const fs = require('fs')
+const util = require('util')
+const express = require('express')
+const app = express()
 
-var port = process.env.PORT || 3000;
+app.use(express.json()) // for parsing application/json
 
-app.use(bodyParser.json());
+const PORT = process.env.PORT || 3000;
 
 app.get('/', function (req, res) {
-	res.send('Hello World!\n');
-});
+  res.send('Hello World!')
+})
 
-app.get('/hello', function(req, res){
-	nom = req.query.nom;
-	if(nom){
-		res.send("Bonjour " + nom + "!\n");
-	}else{
-		res.send("Qui es-tu ?\n");
-	}
-});
+app.get('/hello', function (req, res) {
+  const nom = req.query.nom
+  if (nom) {
+    res.send('Bonjour, ' + nom + ' !')
+  } else {
+    res.send('Quel est votre nom ?')
+  }
+})
 
-app.post('/chat', function(req, res) {
-	var msg = req.body.msg;
-	console.log(req.body);
-	console.log(msg);
+app.post('/chat', async function (req, res) {
+  if (req.body.msg === 'ville') {
+    res.send('Nous sommes à Paris')
+  } else if (req.body.msg === 'météo') {
+    res.send('Il fait beau')
+  } else {
+    if (/ = /.test(req.body.msg)) {
+      const [ cle, valeur ] = req.body.msg.split(' = ')
+      let valeursExistantes
+      try {
+        valeursExistantes = await readValuesFromFile();
+      } catch (err) {
+        res.send('error while reading réponses.json', err)
+        return
+      }
+      const data = JSON.stringify({
+        ...valeursExistantes,
+        [cle]: valeur
+      })
+      try {
+        await writeFile('réponses.json', data)
+        res.send('Merci pour cette information !')
+      } catch (err) {
+        console.error('error while saving réponses.json', err)
+        res.send('Il y a eu une erreur lors de l\'enregistrement')
+      }
+    } else {
+      const cle = req.body.msg
+      try {
+        const values = await readValuesFromFile()
+        const reponse = values[cle]
+        res.send(cle + ': ' + reponse)
+      } catch (err) {
+        res.send('error while reading réponses.json', err)
+      }
+    }
+  }
+})
 
-	if (msg == "ville") {
-		res.send("Nous sommes à Paris\n");
-	}else if(msg == "météo") {
-		res.send("Il fait beau\n");
-	}else if (msg.includes("=")) {
-		var tab = msg.split('=');
-		var myWord = tab[0];
-		myWord = myWord.split(" ").join("");
-		var value = tab[1];
-		value = value.split(" ").join("");
+app.listen(PORT, function () {
+  console.log('Example app listening on port ' + PORT)
+})
 
-		var obj = {}
-		obj[myWord] = value;
-
-		var json = JSON.stringify(obj);
-
-		fs.writeFileSync("réponses.json", json, 'utf8');
-		res.send("Merci pour cette information !");
-	}else{
-		var rawData = fs.readFileSync("réponses.json");
-		var data = JSON.parse(rawData);
-		if (data[msg] != null) {
-			res.send(msg + ": " + data[msg]);
-		}
-		else {
-			res.send("Je ne connais pas " + msg + "...")
-		}
-	}
-});
-
-app.listen(port, function () {
-	console.log('Connexion réussie !');
-	console.log('Port : ' + port);
-});
+async function readValuesFromFile() {
+  const reponses = await readFile('réponses.json', { encoding: 'utf8' })
+  return JSON.parse(reponses)
+}
