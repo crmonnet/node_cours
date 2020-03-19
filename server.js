@@ -86,6 +86,32 @@ app.post('/chat', async function (req, res) {
   }
 })
 
+app.delete('/messages/last', async function(req, res){
+      try {
+          await client.connect()
+          const db = client.db(bdd_name)
+
+          const collection = db.collection('messages')
+
+          const docs = await collection.find({}).toArray()
+
+          var myquery = db.collection.limit(1).sort({$id:-1})
+
+          collection.deleteOne(myquery, function(err, obj){
+            if (err) throw err
+              console.log("1 document deleted")
+              db.close()
+          })
+          console.log(docs)
+          res.send(docs)
+      }
+      catch (err) {
+          console.log(err.stack)
+          res.send(docs)
+      }
+      client.close()
+})
+
 app.listen(PORT, function () {
   console.log('Example app listening on port ' + PORT)
 })
