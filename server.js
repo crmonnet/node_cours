@@ -86,30 +86,24 @@ app.post('/chat', async function (req, res) {
   }
 })
 
-app.delete('/messages/last', async function(req, res){
-      try {
-          await client.connect()
-          const db = client.db(bdd_name)
+app.delete('/messages/last', async function(req, res) {
+    const db = client.db(dbName)
 
-          const collection = db.collection('messages')
+    const collection = db.collection('messages')
 
-          const docs = await collection.find({}).toArray()
-
-          var myquery = db.collection.limit(1).sort({$id:-1})
-
-          collection.deleteOne(myquery, function(err, obj){
-            if (err) throw err
-              console.log("1 document deleted")
-              db.close()
-          })
-          console.log(docs)
-          res.send(docs)
-      }
-      catch (err) {
-          console.log(err.stack)
-          res.send(docs)
-      }
-      client.close()
+    var message = await collection.find().sort({ $natural: -1 }).limit(2).toArray()
+    var notEmpty = message.length != 0
+    if (notEmpty) {
+        var ok = true
+        message.forEach(message => {
+            var del = collection.deleteOne(message)
+            var ok = ok && del.deleteCount == 1
+        })
+        res.send(ok ? "Derniers messages supprimés." : "Error when delete")
+    }
+    else {
+        res.send("Aucun messages à supprimer !")
+    }
 })
 
 app.listen(PORT, function () {
